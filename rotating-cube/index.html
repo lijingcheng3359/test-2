@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Cubes Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            touch-action: none;
+            font-family: Arial, sans-serif;
+            position: relative; /* 确保z-index层级正常工作 */
+        }
+        canvas {
+            display: block;
+            z-index: 1; /* 确保canvas在控制按钮之下 */
+        }
+        /* 左侧按钮容器 */
+        #controls-left {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            max-height: calc(100vh - 20px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 10px;
+            /* 添加滚动条样式 */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.3);
+            /* 优化移动端滚动 */
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* 右侧按钮容器 */
+        #controls-right {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            max-height: calc(100vh - 20px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-left: 10px;
+            /* 添加滚动条样式 */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.3);
+            /* 优化移动端滚动 */
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Webkit浏览器滚动条样式 */
+        #controls-left::-webkit-scrollbar,
+        #controls-right::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #controls-left::-webkit-scrollbar-track,
+        #controls-right::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        
+        #controls-left::-webkit-scrollbar-thumb,
+        #controls-right::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+        }
+        
+        #controls-left::-webkit-scrollbar-thumb:hover,
+        #controls-right::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        .control-btn {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            touch-action: manipulation;
+            min-width: 120px;
+        }
+        
+        /* 汉字和拼音水平排列的容器 */
+        .label-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chinese {
+            font-size: 16px;
+        }
+        
+        .pinyin {
+            font-size: 18px; /* 拼音比汉字更大 */
+            color: #cccccc;
+        }
+        .control-btn:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        .control-btn.active {
+            background-color: rgba(0, 123, 255, 0.9);
+        }
+        
+        /* 横屏样式 */
+        @media screen and (orientation: landscape) {
+            #controls-left,
+            #controls-right {
+                top: 10px;
+                display: flex;
+                flex-direction: column;
+                max-height: calc(100vh - 20px);
+                z-index: 1000; /* 确保横屏时按钮也能正常点击 */
+                -webkit-overflow-scrolling: touch; /* 优化移动端滚动 */
+            }
+            
+            .control-btn {
+                margin-bottom: 5px;
+                padding: 8px 12px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+            
+            .chinese {
+                font-size: 14px;
+            }
+            
+            .pinyin {
+                font-size: 16px; /* 拼音比汉字更大 */
+            }
+        }
+        
+        /* 竖屏大屏设备适配 */
+        @media screen and (orientation: portrait) and (min-width: 768px) {
+            #controls-left,
+            #controls-right {
+                top: 10px;
+                max-height: calc(100vh - 20px);
+                z-index: 1000; /* 确保竖屏大屏设备按钮也能正常点击 */
+                -webkit-overflow-scrolling: touch; /* 优化移动端滚动 */
+            }
+            
+            .control-btn {
+                padding: 12px 20px;
+                font-size: 18px;
+                min-width: 150px;
+            }
+            
+            .chinese {
+                font-size: 18px;
+            }
+            
+            .pinyin {
+                font-size: 20px; /* 拼音比汉字更大 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧按钮容器 - 显示汉字 -->
+    <div id="controls-left">
+        <button class="control-btn active" data-type="cube"><span class="chinese">立方体</span></button>
+        <button class="control-btn" data-type="pyramid"><span class="chinese">四角锥</span></button>
+        <button class="control-btn" data-type="cylinder"><span class="chinese">圆柱体</span></button>
+        <button class="control-btn" data-type="torus"><span class="chinese">圆环体</span></button>
+        <button class="control-btn" data-type="sphere"><span class="chinese">球体</span></button>
+        <button class="control-btn" data-type="triangularPyramid"><span class="chinese">三棱锥</span></button>
+        <button class="control-btn" data-type="rectangularPrism"><span class="chinese">长方体</span></button>
+        <button class="control-btn" data-type="cone"><span class="chinese">圆锥</span></button>
+    </div>
+    
+    <!-- 右侧按钮容器 - 显示拼音 -->
+    <div id="controls-right">
+        <button class="control-btn active" data-type="cube"><span class="pinyin">lì fāng tǐ</span></button>
+        <button class="control-btn" data-type="pyramid"><span class="pinyin">sì jiǎo zhuī</span></button>
+        <button class="control-btn" data-type="cylinder"><span class="pinyin">yuán zhù tǐ</span></button>
+        <button class="control-btn" data-type="torus"><span class="pinyin">yuán huán tǐ</span></button>
+        <button class="control-btn" data-type="sphere"><span class="pinyin">qiú tǐ</span></button>
+        <button class="control-btn" data-type="triangularPyramid"><span class="pinyin">sān léng zhuī</span></button>
+        <button class="control-btn" data-type="rectangularPrism"><span class="pinyin">cháng fāng tǐ</span></button>
+        <button class="control-btn" data-type="cone"><span class="pinyin">yuán zhuī</span></button>
+    </div>
+    
+    <!-- 添加防止页面滚动的脚本 -->
+    <script>
+        // 防止页面滚动影响画布
+        document.addEventListener('touchmove', function(e) {
+            if (!document.getElementById('controls').contains(e.target)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+    
+    <script src="three.min.js"></script>
+    <script>
+        // 初始化场景、相机和渲染器
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xffffff); // 设置背景为白色
+        document.body.appendChild(renderer.domElement);
+
+        // 当前活动的对象
+        let activeObject = null;
+        
+        // 创建不同类型的几何体
+        const geometries = {
+            cube: () => {
+                const geometry = new THREE.BoxGeometry(2, 2, 2);
+                
+                // 为立方体的每个面创建不同颜色的材质
+                const materials = [
+                    new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.7 }), // 右面 - 红色
+                    new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.7 }), // 左面 - 绿色
+                    new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7 }), // 上面 - 蓝色
+                    new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 }), // 下面 - 黄色
+                    new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.7 }), // 前面 - 紫色
+                    new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.7 })  // 后面 - 青色
+                ];
+                
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                return mesh;
+            },
+            
+            pyramid: () => {
+                // 创建四角锥
+                const geometry = new THREE.ConeGeometry(1.5, 2, 4);
+                // 为四角锥的每个面创建不同颜色的材质
+                const materials = [
+                    new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.7 }), // 底面 - 红色
+                    new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.7 }), // 侧面1 - 绿色
+                    new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7 }), // 侧面2 - 蓝色
+                    new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 }), // 侧面3 - 黄色
+                    new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.7 })  // 侧面4 - 紫色
+                ];
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                // 旋转使其尖端向上
+                mesh.rotation.x = Math.PI;
+                
+                return mesh;
+            },
+            
+            cylinder: () => {
+                // 创建圆柱体 (顶部+底部+侧面)
+                const geometry = new THREE.CylinderGeometry(1, 1, 2, 32);
+                // 为圆柱体的不同部分创建不同颜色的材质
+                const materials = [
+                    new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.7 }), // 顶部 - 红色
+                    new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.7 }), // 底部 - 绿色
+                    new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7 })  // 侧面 - 蓝色
+                ];
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                return mesh;
+            },
+            
+            torus: () => {
+                // 创建圆环体
+                const geometry = new THREE.TorusGeometry(1.5, 0.5, 16, 100);
+                // 创建多个不同颜色的材质
+                const materials = [];
+                const colors = [0xff5555, 0x55ff55, 0x5555ff, 0xffff55, 0xff55ff, 0x55ffff];
+                
+                // 为圆环体创建多个不同颜色的材质
+                for (let i = 0; i < 6; i++) {
+                    materials.push(new THREE.MeshBasicMaterial({ 
+                        color: colors[i], 
+                        transparent: true, 
+                        opacity: 0.7 
+                    }));
+                }
+                
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff5555, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                return mesh;
+            },
+            
+            sphere: () => {
+                // 创建球体
+                const geometry = new THREE.SphereGeometry(1.5, 32, 32);
+                // 创建多个不同颜色的材质
+                const materials = [];
+                const colors = [0xff5555, 0x55ff55, 0x5555ff, 0xffff55, 0xff55ff, 0x55ffff, 0xffaa55, 0xaa55ff];
+                
+                // 为球体创建多个不同颜色的材质
+                for (let i = 0; i < 8; i++) {
+                    materials.push(new THREE.MeshBasicMaterial({ 
+                        color: colors[i], 
+                        transparent: true, 
+                        opacity: 0.7 
+                    }));
+                }
+                
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff99ff, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                return mesh;
+            },
+            
+            triangularPyramid: () => {
+                // 创建三棱锥
+                const geometry = new THREE.ConeGeometry(1.5, 2, 3);
+                // 为三棱锥的每个面创建不同颜色的材质
+                const materials = [
+                    new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.7 }), // 底面 - 红色
+                    new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.7 }), // 侧面1 - 绿色
+                    new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.7 }), // 侧面2 - 蓝色
+                    new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.7 })  // 侧面3 - 黄色
+                ];
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                // 旋转使其尖端向上
+                mesh.rotation.x = Math.PI;
+                
+                return mesh;
+            },
+            
+            rectangularPrism: () => {
+                // 创建长方体
+                const geometry = new THREE.BoxGeometry(2.5, 1.5, 1);
+                
+                // 为长方体的每个面创建不同颜色的材质
+                const materials = [
+                    new THREE.MeshBasicMaterial({ color: 0xff9999, transparent: true, opacity: 0.7 }), // 右面 - 浅红色
+                    new THREE.MeshBasicMaterial({ color: 0x99ff99, transparent: true, opacity: 0.7 }), // 左面 - 浅绿色
+                    new THREE.MeshBasicMaterial({ color: 0x9999ff, transparent: true, opacity: 0.7 }), // 上面 - 浅蓝色
+                    new THREE.MeshBasicMaterial({ color: 0xffff99, transparent: true, opacity: 0.7 }), // 下面 - 浅黄色
+                    new THREE.MeshBasicMaterial({ color: 0xff99ff, transparent: true, opacity: 0.7 }), // 前面 - 浅紫色
+                    new THREE.MeshBasicMaterial({ color: 0x99ffff, transparent: true, opacity: 0.7 })  // 后面 - 浅青色
+                ];
+                
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                return mesh;
+            },
+            
+            cone: () => {
+                // 创建圆锥
+                const geometry = new THREE.ConeGeometry(1.2, 2.5, 32);
+                // 为圆锥的不同部分创建不同颜色的材质
+                const materials = [
+                    new THREE.MeshBasicMaterial({ color: 0xff5555, transparent: true, opacity: 0.7 }), // 底面 - 浅红色
+                    new THREE.MeshBasicMaterial({ color: 0x55ff55, transparent: true, opacity: 0.7 })  // 侧面 - 浅绿色
+                ];
+                const mesh = new THREE.Mesh(geometry, materials);
+                
+                // 添加线框
+                const edges = new THREE.EdgesGeometry(geometry);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0x9999ff, linewidth: 2 });
+                const wireframe = new THREE.LineSegments(edges, lineMaterial);
+                mesh.add(wireframe);
+                
+                // 旋转使其尖端向上
+                mesh.rotation.x = Math.PI;
+                
+                return mesh;
+            }
+        };
+
+        // 切换几何体
+        function switchGeometry(type) {
+            // 移除当前对象
+            if (activeObject) {
+                scene.remove(activeObject);
+            }
+            
+            // 创建新对象
+            activeObject = geometries[type]();
+            scene.add(activeObject);
+            
+            // 更新按钮状态 - 左侧按钮
+            document.querySelectorAll('#controls-left .control-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#controls-left [data-type="${type}"]`).classList.add('active');
+            
+            // 更新按钮状态 - 右侧按钮
+            document.querySelectorAll('#controls-right .control-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#controls-right [data-type="${type}"]`).classList.add('active');
+        }
+
+        // 初始化为标准立方体
+        switchGeometry('cube');
+
+        // 设置相机位置
+        camera.position.z = 5;
+
+        // 触摸控制变量
+        let isRotating = false;
+        let isScaling = false;
+        let previousTouchPosition = { x: 0, y: 0 };
+        let initialDistance = 0;
+        let initialScale = 1;
+        let currentScale = 1;
+        const minScale = 0.5;
+        const maxScale = 3.0;
+        
+        // 触摸开始事件
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                // 单指触摸 - 旋转
+                isRotating = true;
+                isScaling = false;
+                const touch = e.touches[0];
+                previousTouchPosition = { x: touch.clientX, y: touch.clientY };
+            } else if (e.touches.length === 2) {
+                // 双指触摸 - 缩放
+                isRotating = false;
+                isScaling = true;
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = Math.sqrt(
+                    Math.pow(touch2.clientX - touch1.clientX, 2) +
+                    Math.pow(touch2.clientY - touch1.clientY, 2)
+                );
+                initialScale = currentScale;
+            }
+        });
+        
+        // 触摸移动事件
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            
+            if (isRotating && activeObject && e.touches.length === 1) {
+                // 旋转操作
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - previousTouchPosition.x;
+                const deltaY = touch.clientY - previousTouchPosition.y;
+                
+                // 根据触摸移动旋转对象
+                activeObject.rotation.y += deltaX * 0.01;
+                activeObject.rotation.x += deltaY * 0.01;
+                
+                previousTouchPosition = { x: touch.clientX, y: touch.clientY };
+            } else if (isScaling && activeObject && e.touches.length === 2) {
+                // 缩放操作
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = Math.sqrt(
+                    Math.pow(touch2.clientX - touch1.clientX, 2) +
+                    Math.pow(touch2.clientY - touch1.clientY, 2)
+                );
+                
+                // 计算缩放比例
+                const scale = initialScale * (currentDistance / initialDistance);
+                
+                // 限制缩放范围
+                currentScale = Math.max(minScale, Math.min(maxScale, scale));
+                
+                // 应用缩放到对象
+                activeObject.scale.set(currentScale, currentScale, currentScale);
+            }
+        });
+        
+        // 触摸结束事件
+        document.addEventListener('touchend', (e) => {
+            isRotating = false;
+            if (e.touches.length < 2) {
+                isScaling = false;
+            }
+        });
+        
+        // 鼠标控制（用于桌面测试）
+        let isMouseDown = false;
+        document.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            previousTouchPosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isMouseDown || !activeObject) return;
+            
+            const deltaX = e.clientX - previousTouchPosition.x;
+            const deltaY = e.clientY - previousTouchPosition.y;
+            
+            // 根据鼠标移动旋转对象
+            activeObject.rotation.y += deltaX * 0.01;
+            activeObject.rotation.x += deltaY * 0.01;
+            
+            previousTouchPosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+
+        // 按钮点击事件 - 左侧按钮
+        document.querySelectorAll('#controls-left .control-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                switchGeometry(type);
+                
+                // 同步右侧按钮的活动状态
+                document.querySelectorAll('#controls-right .control-btn').forEach(rightBtn => {
+                    rightBtn.classList.remove('active');
+                });
+                document.querySelector(`#controls-right [data-type="${type}"]`).classList.add('active');
+            });
+        });
+        
+        // 按钮点击事件 - 右侧按钮
+        document.querySelectorAll('#controls-right .control-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                switchGeometry(type);
+                
+                // 同步左侧按钮的活动状态
+                document.querySelectorAll('#controls-left .control-btn').forEach(leftBtn => {
+                    leftBtn.classList.remove('active');
+                });
+                document.querySelector(`#controls-left [data-type="${type}"]`).classList.add('active');
+            });
+        });
+
+        // 窗口大小调整和屏幕方向检测
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // 根据屏幕方向调整相机位置
+            if (window.innerWidth > window.innerHeight) {
+                // 横屏
+                camera.position.z = 4;
+            } else {
+                // 竖屏
+                camera.position.z = 5;
+            }
+        }
+        
+        window.addEventListener('resize', onWindowResize);
+        
+        // 屏幕方向改变事件
+        window.addEventListener('orientationchange', () => {
+            setTimeout(onWindowResize, 100);
+        });
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
