@@ -58,6 +58,7 @@ const characterGif = document.getElementById('character-gif');
 const pinyinElement = document.getElementById('pinyin');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
+const loadingElement = document.getElementById('loading');
 
 // Get all gif filenames
 const gifFiles = Object.keys(characterData);
@@ -65,15 +66,62 @@ const gifFiles = Object.keys(characterData);
 // Current index
 let currentIndex = 0;
 
-// Load a random character
+// Preloaded images cache
+const imageCache = {};
+
+// Load a random character with preloading
 function loadRandomCharacter() {
+    // Show loading indicator
+    characterGif.style.display = 'none';
+    loadingElement.style.display = 'block';
+    
     // Get a random index
     currentIndex = Math.floor(Math.random() * gifFiles.length);
     const currentGif = gifFiles[currentIndex];
     
-    // Update the display
-    characterGif.src = `gifs/${currentGif}`;
-    pinyinElement.textContent = characterData[currentGif].pinyin.toLowerCase();
+    // Preload the image
+    return preloadImage(currentGif).then(() => {
+        // Hide loading indicator and show image
+        loadingElement.style.display = 'none';
+        characterGif.style.display = 'block';
+        
+        // Update the display only after image is loaded
+        characterGif.src = `gifs/${currentGif}`;
+        pinyinElement.textContent = characterData[currentGif].pinyin.toLowerCase();
+    });
+}
+
+// Preload an image and cache it
+function preloadImage(gifName) {
+    // Return cached promise if already exists
+    if (imageCache[gifName]) {
+        return imageCache[gifName];
+    }
+    
+    // Create a new promise for loading the image
+    const promise = new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = `gifs/${gifName}`;
+    });
+    
+    // Cache the promise
+    imageCache[gifName] = promise;
+    return promise;
+}
+
+// Preload next and previous images for smoother transitions
+function preloadAdjacentImages() {
+    // Preload next image
+    const nextIndex = (currentIndex + 1) % gifFiles.length;
+    const nextGif = gifFiles[nextIndex];
+    preloadImage(nextGif);
+    
+    // Preload previous image
+    const prevIndex = (currentIndex - 1 + gifFiles.length) % gifFiles.length;
+    const prevGif = gifFiles[prevIndex];
+    preloadImage(prevGif);
 }
 
 // Load next character with animation
@@ -81,7 +129,26 @@ function loadNextCharacter() {
     card.classList.remove('slide-in-left', 'slide-in-right');
     void card.offsetWidth; // Trigger reflow
     card.classList.add('slide-in-right');
-    loadRandomCharacter();
+    
+    // Show loading indicator
+    characterGif.style.display = 'none';
+    loadingElement.style.display = 'block';
+    
+    // Get next character
+    currentIndex = (currentIndex + 1) % gifFiles.length;
+    const currentGif = gifFiles[currentIndex];
+    
+    // Preload the image and update display when loaded
+    preloadImage(currentGif).then(() => {
+        // Hide loading indicator and show image
+        loadingElement.style.display = 'none';
+        characterGif.style.display = 'block';
+        
+        characterGif.src = `gifs/${currentGif}`;
+        pinyinElement.textContent = characterData[currentGif].pinyin.toLowerCase();
+        // Preload adjacent images for smoother future transitions
+        preloadAdjacentImages();
+    });
 }
 
 // Load previous character with animation
@@ -89,7 +156,26 @@ function loadPrevCharacter() {
     card.classList.remove('slide-in-left', 'slide-in-right');
     void card.offsetWidth; // Trigger reflow
     card.classList.add('slide-in-left');
-    loadRandomCharacter();
+    
+    // Show loading indicator
+    characterGif.style.display = 'none';
+    loadingElement.style.display = 'block';
+    
+    // Get previous character
+    currentIndex = (currentIndex - 1 + gifFiles.length) % gifFiles.length;
+    const currentGif = gifFiles[currentIndex];
+    
+    // Preload the image and update display when loaded
+    preloadImage(currentGif).then(() => {
+        // Hide loading indicator and show image
+        loadingElement.style.display = 'none';
+        characterGif.style.display = 'block';
+        
+        characterGif.src = `gifs/${currentGif}`;
+        pinyinElement.textContent = characterData[currentGif].pinyin.toLowerCase();
+        // Preload adjacent images for smoother future transitions
+        preloadAdjacentImages();
+    });
 }
 
 // Touch swipe handling
@@ -119,7 +205,10 @@ function handleSwipe() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadRandomCharacter();
+    loadRandomCharacter().then(() => {
+        // Preload adjacent images after initial load
+        preloadAdjacentImages();
+    });
     
     // Add event listeners
     prevBtn.addEventListener('click', loadPrevCharacter);
