@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消除词组</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <button id="reset-btn" class="reset-btn">重置进度</button>
+        <header>
+            <h1>消除词组游戏</h1>
+            <div class="counter">已消除词组: <span id="count">0</span></div>
+        </header>
+        <main>
+            <div id="word-grid" class="word-grid">
+                <!-- 词组卡片将通过JavaScript动态生成 -->
+            </div>
+            <div id="celebration" class="celebration hidden">
+                <h2>恭喜你，所有词组都认识啦！</h2>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

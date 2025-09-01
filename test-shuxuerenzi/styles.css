@@ -1,0 +1,138 @@
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+}
+
+/* 头部样式 */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.counter {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+}
+
+.reset-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: rgba(231, 76, 60, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+    background-color: rgba(192, 57, 43, 0.5);
+    color: white;
+}
+
+/* 词组网格布局 */
+.word-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    justify-content: center;
+}
+
+/* 词组卡片样式 */
+.word-card {
+    background-color: #3498db;
+    color: white;
+    border-radius: 10px;
+    padding: 20px 15px;
+    text-align: center;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    user-select: none;
+}
+
+.word-card:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 消除动画 */
+.word-card.eliminate {
+    animation: eliminate 0.8s ease forwards;
+}
+
+/* 旋转和缩放动画 */
+.word-card.eliminate {
+    animation: eliminate 0.8s ease forwards;
+}
+
+/* 隐藏但保持占位的卡片 */
+.word-card.hidden {
+    visibility: hidden;
+}
+
+@keyframes eliminate {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0);
+    }
+}
+
+/* 庆祝消息样式 */
+.celebration {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.celebration h2 {
+    font-size: 2rem;
+    color: #27ae60;
+    animation: celebrate 1s ease infinite alternate;
+}
+
+@keyframes celebrate {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.1);
+    }
+}
+
+.celebration.hidden {
+    display: none;
+}
