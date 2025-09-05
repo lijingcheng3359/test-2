@@ -132,6 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return timeString.trim();
     }
 
+    function formatDate(dateString) {
+        if (!dateString) return '从未';
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     function extractNumber(filename) {
         const match = filename.match(/P(\d+)/);
         return match ? parseInt(match[1], 10) : -1;
@@ -161,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="file-name">${fileName}</div>
                     <div class="playback-info">
                         <span class="duration">累计时长: ${formatTime(data.accumulatedTime)}</span>
-                        <span class="last-played">最后一次: ${data.lastPlayed ? new Date(data.lastPlayed).toLocaleString() : '从未'}</span>
+                        <span class="last-played">最后一次: ${formatDate(data.lastPlayed)}</span>
                     </div>
                 </div>
                 <audio class="audio-player-row" src="${file}" controls></audio>
@@ -170,12 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const audio = li.querySelector('audio');
             audio.playSegmentStartTime = 0;
 
-            // Restore playback position
             if (data.currentTime) {
                 audio.currentTime = data.currentTime;
             }
 
-            // Event Listeners
             audio.addEventListener('play', (e) => {
                 const currentAudio = e.target;
                 if (currentlyPlayingAudio && currentlyPlayingAudio !== currentAudio) {
@@ -208,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 currentAudio.closest('li').classList.remove('playing');
                 currentlyPlayingAudio = null;
-                // No full re-render to avoid jarring UI jumps
             });
 
             audio.addEventListener('seeking', (e) => saveAccumulatedTime(e.target));
@@ -239,7 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!playbackData[src]) playbackData[src] = {};
 
                 playbackData[src].currentTime = currentAudio.currentTime;
-                playbackData[src].lastPlayed = new Date().toISOString();
+                const now = new Date().toISOString();
+                playbackData[src].lastPlayed = now;
                 setPlaybackData(playbackData);
 
                 const savedAccumulatedTime = playbackData[src].accumulatedTime || 0;
@@ -248,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const li = currentAudio.closest('li');
                 li.querySelector('.duration').textContent = `累计时长: ${formatTime(liveAccumulatedTime)}`;
-                li.querySelector('.last-played').textContent = `最后一次: ${new Date().toLocaleString()}`;
+                li.querySelector('.last-played').textContent = `最后一次: ${formatDate(now)}`;
             });
 
             playlistElement.appendChild(li);
