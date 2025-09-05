@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearCacheButton.addEventListener('click', () => {
         if (confirm('您确定要清除所有播放记录吗？此操作不可恢复。')) {
             localStorage.removeItem('mp3PlaybackData');
+            localStorage.removeItem('lastPlayedAudioIndex');
             location.reload();
         }
     });
@@ -191,6 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentlyPlayingAudio = currentAudio;
                 currentAudio.closest('li').classList.add('playing');
                 currentAudio.playSegmentStartTime = currentAudio.currentTime;
+                
+                // Save the index of the last played audio
+                const index = Array.from(playlistElement.children).indexOf(currentAudio.closest('li'));
+                localStorage.setItem('lastPlayedAudioIndex', index);
             });
 
             audio.addEventListener('pause', (e) => {
@@ -260,6 +265,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             playlistElement.appendChild(li);
         });
+        
+        // Scroll to the last played audio
+        const lastPlayedIndex = localStorage.getItem('lastPlayedAudioIndex');
+        if (lastPlayedIndex !== null) {
+            const index = parseInt(lastPlayedIndex);
+            if (index >= 0 && index < playlistElement.children.length) {
+                const lastPlayedElement = playlistElement.children[index];
+                lastPlayedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                lastPlayedElement.classList.add('playing');
+            }
+        }
     }
 
     function saveAccumulatedTime(audioElement) {
