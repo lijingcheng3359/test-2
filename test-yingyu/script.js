@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const index = parseInt(lastPlayedIndex);
             if (index >= 0 && index < playlistElement.children.length) {
                 const lastPlayedElement = playlistElement.children[index];
-                lastPlayedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                lastPlayedElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 lastPlayedElement.classList.add('playing');
             }
         }
