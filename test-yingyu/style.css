@@ -56,6 +56,8 @@ h1 {
     padding: 15px;
     border-bottom: 1px solid #eee;
     transition: background-color 0.2s;
+    border-radius: 8px;
+    margin-bottom: 8px;
 }
 
 #playlist li:hover {
