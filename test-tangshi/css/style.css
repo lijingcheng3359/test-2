@@ -1,0 +1,267 @@
+/* 基础样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5dc; /* 米黄色背景，类似书本纸张颜色 */
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+}
+
+/* 导航按钮定位样式 */
+.nav-button {
+  position: absolute;
+  top: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: #8b4513; /* 深棕色，类似书本封面颜色 */
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background: #6b340f; /* 悬停时更深的棕色 */
+}
+
+.prev-button {
+  left: 20px;
+}
+
+.next-button {
+  right: 20px;
+}
+
+/* 页面布局 */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 40px);
+  padding: 80px 20px 20px 20px;
+}
+
+.poem-container {
+  width: 100%;
+  max-width: 1200px;
+  background: #fdfde6; /* 浅米黄色，类似书页颜色 */
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 轻微阴影，增加书页立体感 */
+  border: 1px solid #e6e6cc; /* 边框颜色 */
+}
+
+.poem-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.poem-title {
+  font-size: 2rem;
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 15px;
+  vertical-align: middle;
+}
+
+.poem-author {
+  font-size: 1.2rem;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.poem-author .author-dynasty {
+  margin-right: 15px;
+  padding: 3px 10px;
+  background: #e6e6cc; /* 浅灰色背景 */
+  font-size: 1rem;
+}
+
+.poem-author .author-name {
+  font-weight: bold;
+}
+
+.poem-pinyin-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.poem-title-pinyin {
+  font-size: 1.4rem;
+  font-style: italic;
+  display: inline-block;
+  margin-right: 15px;
+  vertical-align: middle;
+}
+
+.poem-author-pinyin {
+  font-size: 1.1rem;
+  font-style: italic;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.poem-content {
+  font-size: 1.8rem;
+  margin: 20px 0;
+}
+
+.poem-couplet {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  border-bottom: 1px dashed #999;
+}
+
+.poem-couplet:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.poem-pinyin-line {
+  font-size: 1.6rem;
+  text-align: center;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.poem-characters-line {
+  font-size: 2.0rem;
+  text-align: center;
+  font-family: 'KaiTi', serif;
+  margin-bottom: 15px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+  
+  .nav-button {
+    top: 15px;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .prev-button {
+    left: 15px;
+  }
+  
+  .next-button {
+    right: 15px;
+  }
+  
+  .poem-container {
+    max-width: 100%;
+    padding: 20px;
+  }
+  
+  .poem-title {
+    font-size: 1.8rem;
+    margin-right: 10px;
+  }
+  
+  .poem-author {
+    font-size: 1.1rem;
+  }
+  
+  .poem-author .author-dynasty {
+    padding: 2px 8px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+  }
+  
+  .poem-title-pinyin {
+    font-size: 1.2rem;
+    margin-right: 10px;
+  }
+  
+  .poem-author-pinyin {
+    font-size: 1.0rem;
+  }
+  
+  .poem-content {
+    font-size: 1.5rem;
+  }
+  
+  .poem-couplet {
+    margin-bottom: 15px;
+  }
+  
+  .poem-pinyin-line {
+    font-size: 1.3rem;
+  }
+  
+  .poem-characters-line {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-button {
+    top: 10px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .prev-button {
+    left: 10px;
+  }
+  
+  .next-button {
+    right: 10px;
+  }
+  
+  .poem-container {
+    padding: 15px;
+  }
+  
+  .poem-title {
+    font-size: 1.5rem;
+    margin-right: 8px;
+  }
+  
+  .poem-author {
+    font-size: 1rem;
+  }
+  
+  .poem-author .author-dynasty {
+    padding: 2px 6px;
+    font-size: 0.8rem;
+    margin-right: 8px;
+  }
+  
+  .poem-title-pinyin {
+    font-size: 1.1rem;
+    margin-right: 8px;
+  }
+  
+  .poem-author-pinyin {
+    font-size: 0.9rem;
+  }
+  
+  .poem-content {
+    font-size: 1.2rem;
+  }
+  
+  .poem-couplet {
+    margin-bottom: 12px;
+  }
+  
+  .poem-pinyin-line {
+    font-size: 1.0rem;
+  }
+  
+  .poem-characters-line {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+}
